@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-	fullName: {
+	firstName: {
 		type: String,
 		required: true,
 	},
@@ -10,10 +10,9 @@ const userSchema = new mongoose.Schema({
 		required: true,
 		unique: true,
 	},
-	username: {
+	lastName: {
 		type: String,
 		required: true,
-		unique: true,
 	},
 	password: {
 		type: String,
@@ -21,29 +20,33 @@ const userSchema = new mongoose.Schema({
 	},
 	profileImageUrl: {
 		type: String,
+		default: null,
 	},
 	department: {
 		type: String,
+		default: 'add your department',
 	},
 	position: {
 		type: String,
+		default: 'add your position',
 	},
-	role: [
+	role: {
+		type: String,
+		default: 'User',
+	},
+	userSince: {
+		type: Date,
+		default: Date.now,
+	},
+	ticketsCreated: [
+		{ type: mongoose.Schema.Types.ObjectId, ref: 'Tickets' },
+	],
+	assignedProjects: [
 		{
-			roles: {
-				user: {},
-				developer: {},
-				manager: {},
-				admin: {},
-			},
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Projects',
 		},
 	],
-	address: {
-		type: String,
-	},
-	phoneNumber: {
-		type: Number,
-	},
 });
 
 const User = mongoose.model('User', userSchema);
