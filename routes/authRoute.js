@@ -21,10 +21,13 @@ router.post('/signup', async function (req, res, next) {
 		const savedUser = await user.save();
 		let accessToken = createAccessToken(savedUser);
 		const { password, ...userInfo } = user._doc;
-		return res.status(200).json({
-			accessToken,
-			userInfo,
-		});
+		return res
+			.cookie('sid', createRefreshToken(user), { httpOnly: true })
+			.status(200)
+			.json({
+				accessToken,
+				userInfo,
+			});
 	} catch (err) {
 		if (err.code === 11000) {
 			err.message = 'Sorry, that username or email are already taken';
