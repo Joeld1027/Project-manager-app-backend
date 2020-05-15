@@ -14,3 +14,6 @@ mongoose.connect(
 );
 
 module.exports.User = require('./user');
+module.exports.Project = require('./project');
+module.exports.Ticket = require('./ticket');
+module.exports.Comment = require('./comment');

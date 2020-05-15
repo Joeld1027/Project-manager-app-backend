@@ -8,17 +8,15 @@ const errorHandler = require('./handlers/error');
 
 // Routes
 const authRoutes = require('./routes/authRoute');
+const ticketRoutes = require('./routes/ticketRoute');
 
 const PORT = 5000;
 
 app.use(cors());
 app.use(bodyParser.json());
-// router.use(function timeLog(req, res, next) {
-// 	console.log('Time: ', Date.now());
-// 	next();
-// });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/tickets', ticketRoutes);
 
 app.use(function (req, res, next) {
 	let err = new Error('Not Found');
