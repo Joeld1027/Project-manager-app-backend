@@ -9,6 +9,7 @@ const errorHandler = require('./handlers/error');
 // Routes
 const authRoutes = require('./routes/authRoute');
 const ticketRoutes = require('./routes/ticketRoute');
+const projectRoutes = require('./routes/projectRoute');
 
 const PORT = 5000;
 
@@ -17,6 +18,7 @@ app.use(bodyParser.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
+app.use('/api/projects', projectRoutes);
 
 app.use(function (req, res, next) {
 	let err = new Error('Not Found');
