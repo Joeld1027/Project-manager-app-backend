@@ -74,4 +74,57 @@ router.post('/signin', async (req, res, next) => {
 	}
 });
 
+//Get all users
+router.get('/users', async (req, res, next) => {
+	try {
+		const allUsers = await db.User.find({});
+		if (allUsers) {
+			return res.status(200).json(allUsers);
+		}
+		next();
+	} catch (err) {
+		return next({
+			message: err.message,
+		});
+	}
+});
+
+//Edit user
+router.put('/edit/:userId', async (req, res, next) => {
+	try {
+		const editedUser = await db.User.findOneAndUpdate(
+			{ _id: req.params.userId },
+			req.body,
+			{ new: true }
+		);
+		if (editedUser) {
+			return res.status(200).json({
+				message: 'User updated',
+				editedUser,
+			});
+		}
+		next();
+	} catch (err) {
+		next({
+			message: err.message,
+		});
+	}
+});
+
+//Delete user
+router.delete('/delete/:userId', async (req, res, next) => {
+	try {
+		const deletedUser = await db.User.findOneAndRemove({
+			_id: req.params.userId,
+		});
+		if (deletedUser) {
+			return res.status(200).json({ message: 'User deleted' });
+		}
+	} catch (err) {
+		return next({
+			message: err.message,
+		});
+	}
+});
+
 module.exports = router;

@@ -18,14 +18,6 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	department: {
-		type: String,
-		default: 'add your department',
-	},
-	position: {
-		type: String,
-		default: 'add your position',
-	},
 	role: {
 		type: String,
 		default: 'User',

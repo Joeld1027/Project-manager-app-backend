@@ -7,12 +7,30 @@ router.get('/', async (req, res, next) => {
 	try {
 		const foundProjects = await Project.find({});
 		if (foundProjects) {
-			return res.status(200).json(foundProjects);
+			const response = {
+				count: foundProjects.length,
+				projects: foundProjects.map((project) => {
+					return {
+						Name: project.projectName,
+						description: project.description,
+						assignedDev: project.asignedDevs,
+						createdBy: project.createdBy,
+						deadline: project.deadline,
+						createdDate: project.created,
+						tickets: project.projectTickets,
+						request: {
+							type: 'GET',
+							url: `http://localhost:5000/api/projects/${project._id}`,
+						},
+					};
+				}),
+			};
+			return res.status(200).json(response);
 		}
 		next();
 	} catch (err) {
-		return next({
-			message: err.message,
+		res.status(500).json({
+			error: err,
 		});
 	}
 });
@@ -26,12 +44,12 @@ router.post('/', async (req, res, next) => {
 		});
 		await newProject.save();
 		if (newProject) {
-			return res.status(200).json(newProject);
+			return res.status(201).json(newProject);
 		}
 		next();
 	} catch (err) {
-		return next({
-			message: err.message,
+		res.status(500).json({
+			error: err,
 		});
 	}
 });
@@ -45,8 +63,8 @@ router.get('/:projectId', async (req, res, next) => {
 		}
 		next();
 	} catch (err) {
-		return next({
-			message: err.message,
+		res.status(500).json({
+			error: err,
 		});
 	}
 });
@@ -58,13 +76,10 @@ router.put('/:projectId', async (req, res, next) => {
 			req.body,
 			{ new: true }
 		);
-		if (updatedProject) {
-			return res.status(200).json(updatedProject);
-		}
-		next();
+		updatedProject ? res.status(201).json(updatedProject) : next();
 	} catch (err) {
-		return next({
-			message: err.message,
+		res.status(500).json({
+			error: err,
 		});
 	}
 });
@@ -77,13 +92,12 @@ router.delete('/:projectId', async (req, res, next) => {
 		if (deletedProject) {
 			return res.json({
 				message: 'Project deleted',
-				ok: true,
 			});
 		}
 		next();
 	} catch (err) {
-		return next({
-			message: err.message,
+		res.status(500).json({
+			error: err,
 		});
 	}
 });
