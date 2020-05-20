@@ -29,6 +29,9 @@ const userSchema = new mongoose.Schema({
 	ticketsCreated: [
 		{ type: mongoose.Schema.Types.ObjectId, ref: 'Tickets' },
 	],
+	assignedTickets: [
+		{ type: mongoose.Schema.Types.ObjectId, ref: 'Tickets' },
+	],
 	assignedProjects: [
 		{
 			type: mongoose.Schema.Types.ObjectId,

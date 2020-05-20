@@ -7,6 +7,7 @@ const errorHandler = require('./handlers/error');
 
 // Routes
 const authRoutes = require('./routes/authRoute');
+const userRoutes = require('./routes/userRoute');
 const ticketRoutes = require('./routes/ticketRoute');
 const projectRoutes = require('./routes/projectRoute');
 
@@ -16,6 +17,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/projects', projectRoutes);
 
