@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../models');
+const { Ticket } = require('../models');
 
 // get all the tickets
 router.get('/', async (req, res, next) => {
 	try {
-		const foundTickets = await db.Ticket.find({});
+		const foundTickets = await Ticket.find().lean();
 		if (foundTickets) {
 			return res.status(200).json(foundTickets);
 		}
@@ -17,9 +17,11 @@ router.get('/', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
 	try {
-		const newTicket = new db.Ticket({
-			ticketName: req.body.ticketName,
+		const newTicket = new Ticket({
+			ticketName: req.body.name,
 			description: req.body.description,
+			ticketCategory: req.body.category,
+			ticketPriority: req.body.priority,
 		});
 		await newTicket.save();
 		return res.status(200).json(newTicket);
@@ -30,7 +32,7 @@ router.post('/', async (req, res, next) => {
 
 router.get('/:ticketId', async (req, res, next) => {
 	try {
-		const foundTicket = await db.Ticket.findById(req.params.ticketId);
+		const foundTicket = await Ticket.findById(req.params.ticketId);
 		if (foundTicket) {
 			return res.status(200).json(foundTicket);
 		}
@@ -44,7 +46,7 @@ router.get('/:ticketId', async (req, res, next) => {
 
 router.put('/:ticketId', async (req, res, next) => {
 	try {
-		const updatedTicket = await db.Ticket.findOneAndUpdate(
+		const updatedTicket = await Ticket.findOneAndUpdate(
 			{ _id: req.params.ticketId },
 			req.body,
 			{ new: true }
@@ -62,7 +64,7 @@ router.put('/:ticketId', async (req, res, next) => {
 
 router.delete('/:ticketId', async (req, res, next) => {
 	try {
-		const deletedTicket = await db.Ticket.findByIdAndDelete({
+		const deletedTicket = await Ticket.findByIdAndDelete({
 			_id: req.params.ticketId,
 		});
 		if (deletedTicket) {

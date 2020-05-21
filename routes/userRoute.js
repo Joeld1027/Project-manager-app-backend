@@ -5,7 +5,7 @@ const { User } = require('../models');
 //Get all users
 router.get('/', async (req, res, next) => {
 	try {
-		const allUsers = await User.find({});
+		const allUsers = await User.find({}).select('-password');
 		if (allUsers) {
 			const users = {
 				count: allUsers.length,
@@ -46,7 +46,9 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:userId', async (req, res, next) => {
 	try {
-		const foundUser = await User.findOne({ _id: req.params.userId });
+		const foundUser = await User.findOne({
+			_id: req.params.userId,
+		}).select('-password');
 		if (foundUser) {
 			const user = {
 				id: foundUser._id,
@@ -81,9 +83,19 @@ router.put('/:userId', async (req, res, next) => {
 	try {
 		const editedUser = await User.findOneAndUpdate(
 			{ _id: req.params.userId },
-			req.body,
-			{ new: true }
-		);
+			{
+				$set: {
+					firstName: req.body.firstName,
+					lastName: req.body.lastName,
+					email: req.body.email,
+					role: req.body.role,
+				},
+			},
+			{
+				new: true,
+				omitUndefined: true,
+			}
+		).select('-password -__v');
 		if (editedUser) {
 			return res.status(200).json({
 				message: 'User updated',
