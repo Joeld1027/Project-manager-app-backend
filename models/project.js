@@ -9,13 +9,13 @@ const projectSchema = new mongoose.Schema({
 			ref: 'User',
 		},
 	],
+	priority: String,
 	createdBy: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User',
 	},
 	deadline: {
 		type: Date,
-		default: 'empty',
 	},
 	created: {
 		type: Date,

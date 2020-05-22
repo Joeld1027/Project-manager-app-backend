@@ -5,13 +5,14 @@ const { Project } = require('../models');
 // find all projects
 router.get('/', async (req, res, next) => {
 	try {
-		const foundProjects = await Project.find({});
+		const foundProjects = await Project.find().lean();
 		if (foundProjects) {
 			const response = {
 				count: foundProjects.length,
 				projects: foundProjects.map((project) => {
 					return {
-						Name: project.projectName,
+						id: project._id,
+						name: project.projectName,
 						description: project.description,
 						assignedDev: project.asignedDevs,
 						createdBy: project.createdBy,
@@ -39,8 +40,10 @@ router.get('/', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
 	try {
 		const newProject = new Project({
-			projectName: req.body.projectName,
+			projectName: req.body.name,
 			description: req.body.description,
+			priority: req.body.priority,
+			asignedDevs: req.body.developers,
 		});
 		await newProject.save();
 		if (newProject) {
