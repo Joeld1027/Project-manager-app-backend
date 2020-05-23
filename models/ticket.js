@@ -17,6 +17,7 @@ const ticketSchema = new mongoose.Schema({
 		type: String,
 		default: 'New',
 	},
+
 	ticketComments: [
 		{
 			type: mongoose.Schema.Types.ObjectId,
