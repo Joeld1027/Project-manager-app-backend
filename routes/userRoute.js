@@ -13,8 +13,7 @@ router.get('/', async (req, res, next) => {
 					return {
 						id: user._id,
 						email: user.email,
-						name: user.firstName,
-						lastName: user.lastName,
+						name: `${user.firstName} ${user.lastName}`,
 						role: user.role,
 						userSince: user.userSince,
 						projects: {

@@ -5,9 +5,9 @@ const { Project } = require('../models');
 // find all projects
 router.get('/', async (req, res, next) => {
 	try {
-		const foundProjects = await Project.find().lean();
+		const foundProjects = await Project.find();
 		if (foundProjects) {
-			const response = {
+			const projects = {
 				count: foundProjects.length,
 				projects: foundProjects.map((project) => {
 					return {
@@ -17,7 +17,7 @@ router.get('/', async (req, res, next) => {
 						assignedDev: project.asignedDevs,
 						createdBy: project.createdBy,
 						deadline: project.deadline,
-						createdDate: project.created,
+						createdDate: new Date(project.created).toDateString(),
 						tickets: project.projectTickets,
 						request: {
 							type: 'GET',
@@ -26,12 +26,12 @@ router.get('/', async (req, res, next) => {
 					};
 				}),
 			};
-			return res.status(200).json(response);
+			return res.status(200).json(projects);
 		}
 		next();
 	} catch (err) {
-		res.status(500).json({
-			error: err,
+		return next({
+			message: err.message,
 		});
 	}
 });

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const ticketSchema = new mongoose.Schema({
-	ticketName: String,
+	name: String,
 	description: String,
 	createdBy: {
 		type: mongoose.Schema.Types.ObjectId,
@@ -11,20 +11,20 @@ const ticketSchema = new mongoose.Schema({
 		type: Date,
 		default: Date.now,
 	},
-	ticketCategory: String,
-	ticketPriority: String,
-	ticketStatus: {
+	category: String,
+	priority: String,
+	status: {
 		type: String,
 		default: 'New',
 	},
 
-	ticketComments: [
+	comments: [
 		{
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'Comments',
 		},
 	],
-	updateHistory: {
+	history: {
 		updatedBy: String,
 		updateInfo: String,
 	},

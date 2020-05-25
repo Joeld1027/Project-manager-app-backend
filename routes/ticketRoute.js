@@ -5,23 +5,36 @@ const { Ticket } = require('../models');
 // get all the tickets
 router.get('/', async (req, res, next) => {
 	try {
-		const foundTickets = await Ticket.find().lean();
+		const foundTickets = await Ticket.find();
 		if (foundTickets) {
-			return res.status(200).json(foundTickets);
+			const tickets = {
+				tickets: foundTickets.map((ticket) => {
+					return {
+						id: ticket._id,
+						name: ticket.name,
+						description: ticket.description,
+						createdDate: ticket.createdDate,
+						category: ticket.category,
+						status: ticket.status,
+						priority: ticket.priority,
+					};
+				}),
+			};
+			return res.status(200).json(tickets);
 		}
-		return res.status(404).json({ message: 'No Tickets found' });
+		next();
 	} catch (err) {
-		return next(err);
+		return next({ message: err.message });
 	}
 });
 
 router.post('/', async (req, res, next) => {
 	try {
 		const newTicket = new Ticket({
-			ticketName: req.body.name,
+			name: req.body.name,
 			description: req.body.description,
-			ticketCategory: req.body.category,
-			ticketPriority: req.body.priority,
+			category: req.body.category,
+			priority: req.body.priority,
 		});
 		await newTicket.save();
 		return res.status(200).json(newTicket);
