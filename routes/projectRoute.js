@@ -18,6 +18,7 @@ router.get('/', async (req, res, next) => {
 						createdBy: project.createdBy,
 						deadline: project.deadline,
 						createdDate: new Date(project.created).toDateString(),
+						priority: project.priority,
 						tickets: project.projectTickets,
 						request: {
 							type: 'GET',

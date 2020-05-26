@@ -14,6 +14,7 @@ router.get('/', async (req, res, next) => {
 						name: ticket.name,
 						description: ticket.description,
 						createdDate: ticket.createdDate,
+						assignedDevs: ticket.assignedDevs,
 						category: ticket.category,
 						status: ticket.status,
 						priority: ticket.priority,

@@ -7,6 +7,12 @@ const ticketSchema = new mongoose.Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User',
 	},
+	asignedDevs: [
+		{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'User',
+		},
+	],
 	createdDate: {
 		type: Date,
 		default: Date.now,
