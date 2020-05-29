@@ -24,7 +24,7 @@ const projectSchema = new mongoose.Schema({
 	projectTickets: [
 		{
 			type: mongoose.Schema.Types.ObjectId,
-			ref: 'Tickets',
+			ref: 'Ticket',
 		},
 	],
 });

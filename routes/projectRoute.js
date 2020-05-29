@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Project } = require('../models');
+const { Project, User } = require('../models');
 
 // find all projects
 router.get('/', async (req, res, next) => {
@@ -40,13 +40,22 @@ router.get('/', async (req, res, next) => {
 //create new project
 router.post('/', async (req, res, next) => {
 	try {
+		const devId = req.body.developers;
 		const newProject = new Project({
 			projectName: req.body.name,
 			description: req.body.description,
 			priority: req.body.priority,
-			asignedDevs: req.body.developers,
+			deadline: req.body.deadline,
+			createdBy: req.body.createdBy,
 		});
 		await newProject.save();
+		for (i = 0; i < devId.length; i++) {
+			const user = await User.findById(devId[i]);
+			await newProject.asignedDevs.push(user._id);
+			await user.assignedProjects.push(newProject._id);
+			await user.save();
+			await newProject.save();
+		}
 		if (newProject) {
 			return res.status(201).json(newProject);
 		}
@@ -63,7 +72,18 @@ router.get('/:projectId', async (req, res, next) => {
 	try {
 		const foundProject = await Project.findById(req.params.projectId);
 		if (foundProject) {
-			return res.status(200).json(foundProject);
+			let foundWithUsers = await foundProject
+				.populate('asignedDevs', [
+					'firstName',
+					'lastName',
+					'email',
+					'assignedProjects',
+				])
+				.populate('createdBy')
+				.execPopulate();
+			console.log(foundWithUsers);
+
+			return res.status(200).json(foundWithUsers);
 		}
 		next();
 	} catch (err) {
