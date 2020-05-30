@@ -14,6 +14,7 @@ router.get('/', async (req, res, next) => {
 						name: ticket.name,
 						description: ticket.description,
 						createdDate: ticket.createdDate,
+						assignedProject: ticket.assignedProject,
 						assignedDevs: ticket.assignedDevs,
 						category: ticket.category,
 						status: ticket.status,
@@ -36,6 +37,7 @@ router.post('/', async (req, res, next) => {
 			description: req.body.description,
 			category: req.body.category,
 			priority: req.body.priority,
+			createdBy: req.body.createdBy,
 		});
 		await newTicket.save();
 		return res.status(200).json(newTicket);
@@ -46,7 +48,11 @@ router.post('/', async (req, res, next) => {
 
 router.get('/:ticketId', async (req, res, next) => {
 	try {
-		const foundTicket = await Ticket.findById(req.params.ticketId);
+		const foundTicket = await (
+			await Ticket.findById(req.params.ticketId).populate(
+				'assignedProject'
+			)
+		).execPopulate();
 		if (foundTicket) {
 			return res.status(200).json(foundTicket);
 		}

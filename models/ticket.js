@@ -3,10 +3,7 @@ const mongoose = require('mongoose');
 const ticketSchema = new mongoose.Schema({
 	name: String,
 	description: String,
-	createdBy: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'User',
-	},
+	createdBy: String,
 	asignedDevs: [
 		{
 			type: mongoose.Schema.Types.ObjectId,
@@ -23,11 +20,16 @@ const ticketSchema = new mongoose.Schema({
 		type: String,
 		default: 'New',
 	},
-
+	assignedProject: [
+		{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Projects',
+		},
+	],
 	comments: [
 		{
 			type: mongoose.Schema.Types.ObjectId,
-			ref: 'Comments',
+			ref: 'Comment',
 		},
 	],
 	history: {

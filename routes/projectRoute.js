@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Project, User } = require('../models');
+const { Project, User, Ticket } = require('../models');
 
 // find all projects
 router.get('/', async (req, res, next) => {
@@ -17,7 +17,9 @@ router.get('/', async (req, res, next) => {
 						assignedDev: project.asignedDevs,
 						createdBy: project.createdBy,
 						deadline: project.deadline,
-						createdDate: new Date(project.created).toDateString(),
+						createdDate: new Date(
+							project.created
+						).toLocaleDateString(),
 						priority: project.priority,
 						tickets: project.projectTickets,
 						request: {
@@ -41,6 +43,7 @@ router.get('/', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
 	try {
 		const devId = req.body.developers;
+		const taskId = req.body.tasks;
 		const newProject = new Project({
 			projectName: req.body.name,
 			description: req.body.description,
@@ -50,10 +53,27 @@ router.post('/', async (req, res, next) => {
 		});
 		await newProject.save();
 		for (i = 0; i < devId.length; i++) {
-			const user = await User.findById(devId[i]);
-			await newProject.asignedDevs.push(user._id);
-			await user.assignedProjects.push(newProject._id);
-			await user.save();
+			let user = await User.findById(devId[i]);
+			let assigned = await newProject.asignedDevs.push(user._id);
+			let projectassigned = await user.assignedProjects.push(
+				newProject._id
+			);
+			let saved = await user.save();
+			let savedproject = await newProject.save();
+			let allDone = Promise.all([
+				assigned,
+				projectassigned,
+				saved,
+				savedproject,
+			]).then((values) => console.log(values));
+			console.log(allDone);
+		}
+		for (i = 0; i < taskId.length; i++) {
+			const task = await Ticket.findById(taskId[i]);
+			await newProject.projectTickets.push(task._id);
+			await task.assignedProject.push(newProject._id);
+			task.set({ status: 'In Progress' });
+			await task.save();
 			await newProject.save();
 		}
 		if (newProject) {
@@ -73,13 +93,8 @@ router.get('/:projectId', async (req, res, next) => {
 		const foundProject = await Project.findById(req.params.projectId);
 		if (foundProject) {
 			let foundWithUsers = await foundProject
-				.populate('asignedDevs', [
-					'firstName',
-					'lastName',
-					'email',
-					'assignedProjects',
-				])
-				.populate('createdBy')
+				.populate('asignedDevs', ['firstName', 'lastName', 'role'])
+				.populate('projectTickets')
 				.execPopulate();
 			console.log(foundWithUsers);
 

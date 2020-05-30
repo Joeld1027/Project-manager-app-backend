@@ -10,10 +10,7 @@ const projectSchema = new mongoose.Schema({
 		},
 	],
 	priority: String,
-	createdBy: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'User',
-	},
+	createdBy: String,
 	deadline: {
 		type: Date,
 	},
