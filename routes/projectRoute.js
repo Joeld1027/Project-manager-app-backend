@@ -7,29 +7,7 @@ router.get('/', async (req, res, next) => {
 	try {
 		const foundProjects = await Project.find();
 		if (foundProjects) {
-			const projects = {
-				count: foundProjects.length,
-				projects: foundProjects.map((project) => {
-					return {
-						id: project._id,
-						name: project.projectName,
-						description: project.description,
-						assignedDev: project.asignedDevs,
-						createdBy: project.createdBy,
-						deadline: project.deadline,
-						createdDate: new Date(
-							project.created
-						).toLocaleDateString(),
-						priority: project.priority,
-						tickets: project.projectTickets,
-						request: {
-							type: 'GET',
-							url: `http://localhost:5000/api/projects/${project._id}`,
-						},
-					};
-				}),
-			};
-			return res.status(200).json(projects);
+			return res.status(200).json(foundProjects);
 		}
 		next();
 	} catch (err) {
@@ -45,7 +23,7 @@ router.post('/', async (req, res, next) => {
 		const devId = req.body.developers;
 		const taskId = req.body.tasks;
 		const newProject = new Project({
-			projectName: req.body.name,
+			name: req.body.name,
 			description: req.body.description,
 			priority: req.body.priority,
 			deadline: req.body.deadline,
@@ -66,7 +44,6 @@ router.post('/', async (req, res, next) => {
 				saved,
 				savedproject,
 			]).then((values) => console.log(values));
-			console.log(allDone);
 		}
 		for (i = 0; i < taskId.length; i++) {
 			const task = await Ticket.findById(taskId[i]);
@@ -96,9 +73,8 @@ router.get('/:projectId', async (req, res, next) => {
 				.populate('asignedDevs', ['firstName', 'lastName', 'role'])
 				.populate('projectTickets')
 				.execPopulate();
-			console.log(foundWithUsers);
 
-			return res.status(200).json(foundWithUsers);
+			return res.status(200).json(foundProject);
 		}
 		next();
 	} catch (err) {

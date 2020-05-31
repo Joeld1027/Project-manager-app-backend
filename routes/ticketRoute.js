@@ -6,6 +6,7 @@ const { Ticket } = require('../models');
 router.get('/', async (req, res, next) => {
 	try {
 		const foundTickets = await Ticket.find();
+
 		if (foundTickets) {
 			const tickets = {
 				tickets: foundTickets.map((ticket) => {
