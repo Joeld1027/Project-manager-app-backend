@@ -26,9 +26,6 @@ const userSchema = new mongoose.Schema({
 		type: Date,
 		default: Date.now,
 	},
-	ticketsCreated: [
-		{ type: mongoose.Schema.Types.ObjectId, ref: 'Tickets' },
-	],
 	assignedTickets: [
 		{ type: mongoose.Schema.Types.ObjectId, ref: 'Tickets' },
 	],

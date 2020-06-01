@@ -36,7 +36,6 @@ const ticketSchema = new mongoose.Schema({
 		updatedBy: String,
 		updateInfo: String,
 	},
-	attachments: [],
 });
 
 const Ticket = mongoose.model('Ticket', ticketSchema);

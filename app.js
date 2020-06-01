@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/tickets', ticketRoutes);
+app.use('/api/tasks', ticketRoutes);
 app.use('/api/projects', projectRoutes);
 
 app.use(function (req, res, next) {
