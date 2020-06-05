@@ -5,7 +5,10 @@ const { Project, User, Ticket } = require('../models');
 // find all projects
 router.get('/', async (req, res, next) => {
 	try {
-		const foundProjects = await Project.find();
+		const foundProjects = await Project.find()
+			.populate('projectTickets')
+			.populate('assignedDevs')
+			.exec();
 		if (foundProjects) {
 			return res.status(200).json(foundProjects);
 		}
@@ -27,34 +30,25 @@ router.post('/', async (req, res, next) => {
 			description: req.body.description,
 			priority: req.body.priority,
 			deadline: req.body.deadline,
-			createdBy: req.body.createdBy,
 		});
 		await newProject.save();
-		for (i = 0; i < devId.length; i++) {
-			let user = await User.findById(devId[i]);
-			let assigned = await newProject.asignedDevs.push(user._id);
-			let projectassigned = await user.assignedProjects.push(
-				newProject._id
-			);
-			let saved = await user.save();
-			let savedproject = await newProject.save();
-			let allDone = Promise.all([
-				assigned,
-				projectassigned,
-				saved,
-				savedproject,
-			]).then((values) => console.log(values));
-		}
-		for (i = 0; i < taskId.length; i++) {
-			const task = await Ticket.findById(taskId[i]);
-			await newProject.projectTickets.push(task._id);
-			await task.assignedProject.push(newProject._id);
-			task.set({ status: 'In Progress' });
-			await task.save();
-			await newProject.save();
-		}
 		if (newProject) {
-			return res.status(201).json(newProject);
+			for (i = 0; i < devId.length; i++) {
+				let user = await User.findById(devId[i]);
+				await newProject.assignedDevs.push(user._id);
+				await user.assignedProjects.push(newProject._id);
+				user.save();
+				await newProject.save();
+			}
+			for (i = 0; i < taskId.length; i++) {
+				const task = await Ticket.findById(taskId[i]);
+				await newProject.projectTickets.push(task._id);
+				await task.assignedProject.push(newProject._id);
+				task.set({ status: 'In Progress' });
+				await task.save();
+				await newProject.save();
+			}
+			return res.status(201).json({ message: 'Project Created' });
 		}
 		next();
 	} catch (err) {

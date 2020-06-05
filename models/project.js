@@ -3,12 +3,16 @@ const mongoose = require('mongoose');
 const projectSchema = new mongoose.Schema({
 	name: String,
 	description: String,
-	asignedDevs: [
+	assignedDevs: [
 		{
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'User',
 		},
 	],
+	completed: {
+		type: Boolean,
+		default: false,
+	},
 	priority: String,
 	createdBy: String,
 	deadline: {

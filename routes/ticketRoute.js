@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Ticket } = require('../models');
+const { Ticket, Project, User } = require('../models');
 
 // get all the tickets
 router.get('/', async (req, res, next) => {
@@ -35,24 +35,36 @@ router.get('/', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
 	try {
-		const newTicket = new Ticket({
+		const newTask = new Ticket({
 			name: req.body.name,
 			description: req.body.description,
 			category: req.body.category,
 			priority: req.body.priority,
 			createdBy: req.body.createdBy,
+			assignedProject: req.body.project,
 		});
-		await newTicket.save();
-		return res.status(200).json(newTicket);
+		await newTask.save();
+		if (newTask) {
+			projectToAdd = await Project.findById(req.body.project);
+			if (projectToAdd) {
+				await projectToAdd.projectTickets.push(newTicket._id);
+				await projectToAdd.save();
+
+				newTask.status = 'In Progress';
+				await newTask.save();
+			}
+			return res.status(200).json(newTask);
+		}
+		return next();
 	} catch (err) {
 		return next(err);
 	}
 });
 
-router.get('/:ticketId', async (req, res, next) => {
+router.get('/:taskId', async (req, res, next) => {
 	try {
 		const foundTicket = await (
-			await Ticket.findById(req.params.ticketId).populate(
+			await Ticket.findById(req.params.taskId).populate(
 				'assignedProject'
 			)
 		).execPopulate();
@@ -67,10 +79,10 @@ router.get('/:ticketId', async (req, res, next) => {
 	}
 });
 
-router.put('/:ticketId', async (req, res, next) => {
+router.put('/:taskId', async (req, res, next) => {
 	try {
 		const updatedTicket = await Ticket.findOneAndUpdate(
-			{ _id: req.params.ticketId },
+			{ _id: req.params.taskId },
 			req.body,
 			{ new: true }
 		);
@@ -85,10 +97,10 @@ router.put('/:ticketId', async (req, res, next) => {
 	}
 });
 
-router.delete('/:ticketId', async (req, res, next) => {
+router.delete('/:taskId', async (req, res, next) => {
 	try {
 		const deletedTicket = await Ticket.findByIdAndDelete({
-			_id: req.params.ticketId,
+			_id: req.params.taskId,
 		});
 		if (deletedTicket) {
 			return res.json({
