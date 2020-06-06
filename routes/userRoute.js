@@ -7,34 +7,8 @@ router.get('/', async (req, res, next) => {
 	try {
 		const allUsers = await User.find({}).select('-password');
 		if (allUsers) {
-			const users = {
-				count: allUsers.length,
-				users: allUsers.map((user) => {
-					return {
-						id: user._id,
-						email: user.email,
-						name: `${user.firstName} ${user.lastName}`,
-						role: user.role,
-						userSince: user.userSince,
-						projects: {
-							count: user.assignedProjects.length,
-							projects: [user.assignedProjects],
-						},
-						tickets: {
-							count: user.assignedProjects.length,
-							tickets: [user.assignedTickets],
-						},
-						request: {
-							type: 'GET',
-							url: `http://localhost:5000/api/users/${user._id}`,
-						},
-					};
-				}),
-			};
-
-			return res.status(200).json(users);
+			return res.status(200).json(allUsers);
 		}
-
 		next();
 	} catch (err) {
 		return next({
@@ -52,8 +26,7 @@ router.get('/:userId', async (req, res, next) => {
 			const user = {
 				id: foundUser._id,
 				email: foundUser.email,
-				name: foundUser.firstName,
-				lastName: foundUser.lastName,
+				name: foundUser.name,
 				role: foundUser.role,
 				userSince: foundUser.userSince,
 				requests: {
@@ -84,8 +57,7 @@ router.put('/:userId', async (req, res, next) => {
 			{ _id: req.params.userId },
 			{
 				$set: {
-					firstName: req.body.firstName,
-					lastName: req.body.lastName,
+					name: req.body.name,
 					email: req.body.email,
 					role: req.body.role,
 				},
