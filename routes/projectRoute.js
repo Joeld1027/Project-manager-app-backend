@@ -87,12 +87,49 @@ router.get('/:projectId', async (req, res, next) => {
 });
 
 router.patch('/:projectId', async (req, res, next) => {
+	console.log(req.body);
 	try {
 		const updatedProject = await Project.findByIdAndUpdate(
 			req.params.projectId,
 			req.body,
 			{ new: true, omitUndefined: true }
 		);
+		if (req.body.tasks) {
+			const tasksToRemove = req.body.tasks;
+			for (i = 0; i < tasksToRemove.length; i++) {
+				const task = await Ticket.findById(tasksToRemove[i]);
+				await updatedProject.update({
+					$pull: { projectTickets: task._id },
+				});
+				await task.update({
+					$pull: { assignedProject: updatedProject._id },
+				});
+				await task.update({ $set: { status: 'New' } });
+				await task.save();
+			}
+		}
+		if (req.body.developers) {
+			const devs = req.body.developers;
+			for (i = 0; i < devs.length; i++) {
+				let dev = await User.findById(devs[i]);
+				await updatedProject.update({
+					$pull: { assignedDevs: dev._id },
+				});
+				await dev.update({
+					$pull: { assignedProjects: updatedProject._id },
+				});
+				await dev.save();
+			}
+		}
+		if (req.body.addDevelopers) {
+			const addDevs = req.body.addDevelopers;
+			for (i = 0; i < addDevs.length; i++) {
+				let user = await User.findById(addDevs[i]);
+				await updatedProject.assignedDevs.push(user._id);
+				await user.assignedProjects.push(updatedProject._id);
+				await user.save();
+			}
+		}
 		await updatedProject.save();
 		updatedProject ? res.status(201).json(updatedProject) : next();
 	} catch (err) {
@@ -108,7 +145,7 @@ router.delete('/:projectId', async (req, res, next) => {
 			req.params.projectId
 		);
 
-		if (deletedProject.projectTickets > 0) {
+		if (deletedProject.projectTickets) {
 			const tasks = deletedProject.projectTickets;
 			for (i = 0; i < tasks.length; i++) {
 				const task = await Ticket.findById(tasks[i]);

@@ -43,10 +43,10 @@ router.post('/', async (req, res, next) => {
 			createdBy: req.body.createdBy,
 		});
 		if (req.body.project) {
-			newTask.assignedProject.push(req.body.project);
-			projectToAdd = await Project.findById(req.body.project);
+			await newTask.assignedProject.push(req.body.project);
+			let projectToAdd = await Project.findById(req.body.project);
 			if (projectToAdd) {
-				await projectToAdd.projectTickets.push(newTicket._id);
+				await projectToAdd.projectTickets.push(newTask._id);
 				await projectToAdd.save();
 				newTask.status = 'In Progress';
 			}
