@@ -23,8 +23,6 @@ router.get('/', async (req, res, next) => {
 //create new project
 router.post('/', async (req, res, next) => {
 	try {
-		const devId = req.body.developers;
-		const taskId = req.body.tasks;
 		const newProject = new Project({
 			name: req.body.name,
 			description: req.body.description,
@@ -33,7 +31,8 @@ router.post('/', async (req, res, next) => {
 			createdBy: req.body.createdBy,
 		});
 
-		if (req.body.developers) {
+		if (req.body.addDevelopers) {
+			const devId = req.body.addDevelopers;
 			for (i = 0; i < devId.length; i++) {
 				let user = await User.findById(devId[i]);
 				await newProject.assignedDevs.push(user._id);
@@ -42,7 +41,8 @@ router.post('/', async (req, res, next) => {
 				await newProject.save();
 			}
 
-			if (req.body.tasks) {
+			if (req.body.addTasks) {
+				const taskId = req.body.addTasks;
 				for (i = 0; i < taskId.length; i++) {
 					const task = await Ticket.findById(taskId[i]);
 					await newProject.projectTickets.push(task._id);
@@ -128,6 +128,16 @@ router.patch('/:projectId', async (req, res, next) => {
 				await updatedProject.assignedDevs.push(user._id);
 				await user.assignedProjects.push(updatedProject._id);
 				await user.save();
+			}
+		}
+		if (req.body.addTasks) {
+			const addTasks = req.body.addTasks;
+			for (i = 0; i < addTasks.length; i++) {
+				const task = await Ticket.findById(addTasks[i]);
+				await updatedProject.projectTickets.push(task._id);
+				await task.assignedProject.push(updatedProject._id);
+				task.set({ status: 'In Progress' });
+				await task.save();
 			}
 		}
 		await updatedProject.save();
