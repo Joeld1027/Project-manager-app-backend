@@ -42,9 +42,9 @@ router.post('/', async (req, res, next) => {
 			priority: req.body.priority,
 			createdBy: req.body.createdBy,
 		});
-		if (req.body.project) {
-			await newTask.assignedProject.push(req.body.project);
-			let projectToAdd = await Project.findById(req.body.project);
+		if (req.body.projectId) {
+			await newTask.assignedProject.push(req.body.projectId);
+			let projectToAdd = await Project.findById(req.body.projectId);
 			if (projectToAdd) {
 				await projectToAdd.projectTickets.push(newTask._id);
 				await projectToAdd.save();
@@ -79,14 +79,22 @@ router.get('/:taskId', async (req, res, next) => {
 	}
 });
 
-router.put('/:taskId', async (req, res, next) => {
+router.patch('/:taskId', async (req, res, next) => {
 	try {
 		const updatedTicket = await Ticket.findOneAndUpdate(
 			{ _id: req.params.taskId },
 			req.body,
-			{ new: true }
+			{ new: true, omitUndefined: true }
 		);
+		if (req.body.projectId) {
+			const project = await Project.findById(req.body.projectId);
+			await project.projectTickets.push(updatedTicket._id);
+			await updatedTicket.assignedProject.push(req.body.projectId);
+			updatedTicket.status = 'In Progress';
+			await project.save();
+		}
 		if (updatedTicket) {
+			await updatedTicket.save();
 			return res.status(200).json(updatedTicket);
 		}
 		return res.status(404).json({
@@ -99,16 +107,13 @@ router.put('/:taskId', async (req, res, next) => {
 
 router.delete('/:taskId', async (req, res, next) => {
 	try {
-		const deletedTicket = await Ticket.findByIdAndDelete({
-			_id: req.params.taskId,
-		});
+		const deletedTicket = await Ticket.findByIdAndDelete(
+			req.params.taskId
+		);
 		if (deletedTicket) {
-			return res.json({
-				message: 'Ticket deleted',
-				ok: true,
-			});
+			return res.status(200).json(deletedTicket);
 		}
-		return next();
+		next();
 	} catch (err) {
 		return next({
 			message: err.message,

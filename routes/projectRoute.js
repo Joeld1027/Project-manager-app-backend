@@ -174,7 +174,8 @@ router.delete('/:projectId', async (req, res, next) => {
 		}
 		if (deletedProject) {
 			await deletedProject.remove();
-			return res.status(200);
+			console.log('project removed');
+			return res.status(200).json(deletedProject);
 		}
 
 		next();
