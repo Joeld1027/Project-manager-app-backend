@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const ticketSchema = new mongoose.Schema({
+const taskSchema = new mongoose.Schema({
 	name: String,
 	description: String,
 	createdBy: String,
@@ -38,6 +38,6 @@ const ticketSchema = new mongoose.Schema({
 	},
 });
 
-const Ticket = mongoose.model('Ticket', ticketSchema);
+const Task = mongoose.model('Task', taskSchema);
 
-module.exports = Ticket;
+module.exports = Task;

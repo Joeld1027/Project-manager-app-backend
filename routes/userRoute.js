@@ -23,24 +23,7 @@ router.get('/:userId', async (req, res, next) => {
 			_id: req.params.userId,
 		}).select('-password');
 		if (foundUser) {
-			const user = {
-				id: foundUser._id,
-				email: foundUser.email,
-				name: foundUser.name,
-				role: foundUser.role,
-				userSince: foundUser.userSince,
-				requests: {
-					edit: {
-						type: 'PUT',
-						url: `http://localhost:5000/api/users/${foundUser._id}`,
-					},
-					delete: {
-						type: 'DELETE',
-						url: `http://localhost:5000/api/users/${foundUser._id}`,
-					},
-				},
-			};
-			return res.status(200).json(user);
+			return res.status(200).json(foundUser);
 		}
 		next();
 	} catch (error) {

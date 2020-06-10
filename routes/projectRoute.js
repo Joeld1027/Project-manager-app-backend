@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { Project, User, Ticket } = require('../models');
+const { Project, User, Task } = require('../models');
 
 // find all projects
 router.get('/', async (req, res, next) => {
 	try {
 		const foundProjects = await Project.find()
-			.populate('projectTickets')
-			.populate('assignedDevs')
+			.populate('projectTasks')
+			.populate('assignedDevs', '-__v -password')
 			.exec();
 		if (foundProjects) {
 			return res.status(200).json(foundProjects);
@@ -44,10 +44,10 @@ router.post('/', async (req, res, next) => {
 			if (req.body.addTasks) {
 				const taskId = req.body.addTasks;
 				for (i = 0; i < taskId.length; i++) {
-					const task = await Ticket.findById(taskId[i]);
-					await newProject.projectTickets.push(task._id);
+					const task = await Task.findById(taskId[i]);
+					await newProject.projectTasks.push(task._id);
 					await task.assignedProject.push(newProject._id);
-					task.set({ status: 'In Progress' });
+					task.set({ status: 'Pending' });
 					await task.save();
 					await newProject.save();
 				}
@@ -97,9 +97,9 @@ router.patch('/:projectId', async (req, res, next) => {
 		if (req.body.tasks) {
 			const tasksToRemove = req.body.tasks;
 			for (i = 0; i < tasksToRemove.length; i++) {
-				const task = await Ticket.findById(tasksToRemove[i]);
+				const task = await Task.findById(tasksToRemove[i]);
 				await updatedProject.update({
-					$pull: { projectTickets: task._id },
+					$pull: { projectTasks: task._id },
 				});
 				await task.update({
 					$pull: { assignedProject: updatedProject._id },
@@ -133,10 +133,10 @@ router.patch('/:projectId', async (req, res, next) => {
 		if (req.body.addTasks) {
 			const addTasks = req.body.addTasks;
 			for (i = 0; i < addTasks.length; i++) {
-				const task = await Ticket.findById(addTasks[i]);
-				await updatedProject.projectTickets.push(task._id);
+				const task = await Task.findById(addTasks[i]);
+				await updatedProject.projectTasks.push(task._id);
 				await task.assignedProject.push(updatedProject._id);
-				task.set({ status: 'In Progress' });
+				task.set({ status: 'Pending' });
 				await task.save();
 			}
 		}
@@ -156,12 +156,13 @@ router.delete('/:projectId', async (req, res, next) => {
 		);
 
 		if (deletedProject.projectTickets) {
-			const tasks = deletedProject.projectTickets;
+			const tasks = deletedProject.projectTasks;
 			for (i = 0; i < tasks.length; i++) {
-				const task = await Ticket.findById(tasks[i]);
-				await task.remove();
+				const task = await Task.findById(tasks[i]);
+				if (task) await task.remove();
 			}
 		}
+
 		if (deletedProject.assignedDevs) {
 			const users = deletedProject.assignedDevs;
 			for (i = 0; i < users.length; i++) {
@@ -172,13 +173,9 @@ router.delete('/:projectId', async (req, res, next) => {
 				await user.save();
 			}
 		}
-		if (deletedProject) {
-			await deletedProject.remove();
-			console.log('project removed');
-			return res.status(200).json(deletedProject);
-		}
 
-		next();
+		await deletedProject.remove();
+		return res.status(200).json(deletedProject);
 	} catch (err) {
 		res.status(500).json({
 			error: err,

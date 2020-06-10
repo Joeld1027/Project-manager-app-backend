@@ -22,8 +22,8 @@ const userSchema = new mongoose.Schema({
 		type: Date,
 		default: Date.now,
 	},
-	assignedTickets: [
-		{ type: mongoose.Schema.Types.ObjectId, ref: 'Tickets' },
+	assignedTasks: [
+		{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' },
 	],
 	assignedProjects: [
 		{

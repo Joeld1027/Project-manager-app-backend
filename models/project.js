@@ -22,10 +22,10 @@ const projectSchema = new mongoose.Schema({
 		type: Date,
 		default: Date.now,
 	},
-	projectTickets: [
+	projectTasks: [
 		{
 			type: mongoose.Schema.Types.ObjectId,
-			ref: 'Ticket',
+			ref: 'Task',
 		},
 	],
 });

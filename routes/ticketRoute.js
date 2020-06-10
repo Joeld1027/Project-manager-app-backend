@@ -1,31 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const { Ticket, Project, User } = require('../models');
+const { Task, Project, User } = require('../models');
 
-// get all the tickets
+// get all the tasks
 router.get('/', async (req, res, next) => {
 	try {
-		const foundTickets = await Ticket.find()
+		const foundTasks = await Task.find()
 			.populate('assignedProject')
 			.exec();
 
-		if (foundTickets) {
-			// const tickets = {
-			// 	tickets: foundTickets.map((ticket) => {
-			// 		return {
-			// 			id: ticket._id,
-			// 			name: ticket.name,
-			// 			description: ticket.description,
-			// 			createdDate: ticket.createdDate,
-			// 			assignedProject: ticket.assignedProject,
-			// 			assignedDevs: ticket.assignedDevs,
-			// 			category: ticket.category,
-			// 			status: ticket.status,
-			// 			priority: ticket.priority,
-			// 		};
-			// 	}),
-			// };
-			return res.status(200).json(foundTickets);
+		if (foundTasks) {
+			return res.status(200).json(foundTasks);
 		}
 		next();
 	} catch (err) {
@@ -35,7 +20,7 @@ router.get('/', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
 	try {
-		const newTask = new Ticket({
+		const newTask = new Task({
 			name: req.body.name,
 			description: req.body.description,
 			category: req.body.category,
@@ -46,9 +31,9 @@ router.post('/', async (req, res, next) => {
 			await newTask.assignedProject.push(req.body.projectId);
 			let projectToAdd = await Project.findById(req.body.projectId);
 			if (projectToAdd) {
-				await projectToAdd.projectTickets.push(newTask._id);
+				await projectToAdd.projectTasks.push(newTask._id);
 				await projectToAdd.save();
-				newTask.status = 'In Progress';
+				newTask.status = 'Pending';
 			}
 		}
 		await newTask.save();
@@ -63,16 +48,14 @@ router.post('/', async (req, res, next) => {
 
 router.get('/:taskId', async (req, res, next) => {
 	try {
-		const foundTicket = await (
-			await Ticket.findById(req.params.taskId).populate(
-				'assignedProject'
-			)
-		).execPopulate();
-		if (foundTicket) {
-			return res.status(200).json(foundTicket);
+		const foundTask = await Task.findById(req.params.taskId)
+			.populate('assignedProject')
+			.execPopulate();
+		if (foundTask) {
+			return res.status(200).json(foundTask);
 		}
 		return res.status(404).json({
-			message: 'No ticket found',
+			message: 'No task found',
 		});
 	} catch (err) {
 		return next(err);
@@ -81,24 +64,35 @@ router.get('/:taskId', async (req, res, next) => {
 
 router.patch('/:taskId', async (req, res, next) => {
 	try {
-		const updatedTicket = await Ticket.findOneAndUpdate(
+		const updatedTask = await Task.findOneAndUpdate(
 			{ _id: req.params.taskId },
 			req.body,
 			{ new: true, omitUndefined: true }
 		);
 		if (req.body.projectId) {
 			const project = await Project.findById(req.body.projectId);
-			await project.projectTickets.push(updatedTicket._id);
-			await updatedTicket.assignedProject.push(req.body.projectId);
-			updatedTicket.status = 'In Progress';
-			await project.save();
+			if (project) {
+				await project.projectTasks.push(updatedTask._id);
+				await updatedTask.assignedProject.push(req.body.projectId);
+				updatedTask.status = 'Pending';
+				await project.save();
+			}
 		}
-		if (updatedTicket) {
-			await updatedTicket.save();
-			return res.status(200).json(updatedTicket);
+
+		if (req.body.assignUserToTask) {
+			const user = await User.findById(req.body.assignUserToTask);
+			await updatedTask.assignedDevs.push(user._id);
+			await user.assignedTasks.push(updatedTask._id);
+			await user.save();
+			updatedTask.status = 'In Progress';
+			console.log(user);
+		}
+		if (updatedTask) {
+			await updatedTask.save();
+			return res.status(200).json(updatedTask);
 		}
 		return res.status(404).json({
-			message: 'Ticket not found',
+			message: 'Task not found',
 		});
 	} catch (err) {
 		return next(err);
@@ -107,13 +101,16 @@ router.patch('/:taskId', async (req, res, next) => {
 
 router.delete('/:taskId', async (req, res, next) => {
 	try {
-		const deletedTicket = await Ticket.findByIdAndDelete(
-			req.params.taskId
-		);
-		if (deletedTicket) {
-			return res.status(200).json(deletedTicket);
+		const deletedTask = await Task.findById(req.params.taskId);
+		if (deletedTask) {
+			const user = await User.findById(deletedTask.assignedDevs[0]);
+			if (user)
+				await user.update({
+					$pull: { assignedTasks: deletedTask._id },
+				});
+			await deletedTask.remove();
 		}
-		next();
+		return res.status(200).json(deletedTask);
 	} catch (err) {
 		return next({
 			message: err.message,
