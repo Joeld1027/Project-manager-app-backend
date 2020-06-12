@@ -9,6 +9,7 @@ const errorHandler = require('./handlers/error');
 const authRoutes = require('./routes/authRoute');
 const userRoutes = require('./routes/userRoute');
 const taskRoutes = require('./routes/ticketRoute');
+const commetRoutes = require('./routes/commentRoute');
 const projectRoutes = require('./routes/projectRoute');
 
 const PORT = 5000;
@@ -19,6 +20,7 @@ app.use(bodyParser.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/comments', commetRoutes);
 app.use('/api/projects', projectRoutes);
 
 app.use(function (req, res, next) {

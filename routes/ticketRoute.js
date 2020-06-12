@@ -7,6 +7,8 @@ router.get('/', async (req, res, next) => {
 	try {
 		const foundTasks = await Task.find()
 			.populate('assignedProject')
+			.populate('comments')
+			.populate('assignedDevs', '-__v -password')
 			.exec();
 
 		if (foundTasks) {
