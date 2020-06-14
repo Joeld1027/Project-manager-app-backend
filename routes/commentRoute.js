@@ -28,6 +28,11 @@ router.patch('/:commentId', async (req, res, next) => {
 			req.body,
 			{ new: true, omitUndefined: true }
 		);
+		if (req.body.updateTaskId) {
+			let task = await Task.findById(req.body.updateTaskId);
+			await task.update({ $pull: { comments: updatedComment._id } });
+			await task.save();
+		}
 
 		res.status(200).json(updatedComment);
 	} catch (err) {
@@ -40,9 +45,6 @@ router.patch('/:commentId', async (req, res, next) => {
 router.delete('/:commentId', async (req, res, next) => {
 	try {
 		let deletedComment = Comment.findById(req.params.commentId);
-		let task = await Task.findById(req.body.taskId);
-		await task.update({ $pull: { comments: deletedComment._id } });
-		await task.save();
 		await deletedComment.remove();
 		return res.status(200).json({ message: 'Comment deleted.' });
 	} catch (err) {

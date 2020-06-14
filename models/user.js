@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
 	},
 	role: {
 		type: String,
-		default: 'Submitter',
+		default: 'Demo-Submitter',
 	},
 	userSince: {
 		type: Date,
