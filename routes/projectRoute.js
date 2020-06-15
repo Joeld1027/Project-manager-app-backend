@@ -52,11 +52,11 @@ router.post('/', async (req, res, next) => {
 					await newProject.save();
 				}
 			}
-			await newProject.save();
+		}
+		await newProject.save();
 
-			if (newProject) {
-				return res.status(201).json(newProject);
-			}
+		if (newProject) {
+			return res.status(201).json(newProject);
 		}
 		next();
 	} catch (err) {
