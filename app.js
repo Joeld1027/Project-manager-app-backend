@@ -22,7 +22,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', loginRequired, userRoutes);
 app.use('/api/tasks', loginRequired, taskRoutes);
 app.use('/api/comments', loginRequired, commetRoutes);
-app.use('/api/projects', loginRequired, projectRoutes);
+app.use('/api/projects', projectRoutes);
 
 app.use(function (req, res, next) {
 	let err = new Error('Not Found');
