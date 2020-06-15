@@ -3,7 +3,8 @@ mongoose.set('debug', true);
 mongoose.Promise = Promise;
 
 mongoose.connect(
-	'mongodb://localhost/Project-Manager-App',
+	process.env.MONGODB_URI ||
+		'mongodb://localhost/Project-Manager-App',
 	{
 		keepAlive: true,
 		useNewUrlParser: true,
