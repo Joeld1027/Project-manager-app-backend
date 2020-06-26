@@ -2,10 +2,8 @@ const express = require('express');
 const router = express.Router();
 const db = require('../models');
 const bcrypt = require('bcrypt');
-const {
-	createAccessToken,
-	createRefreshToken,
-} = require('../services/jwtLogic');
+const { createAccessToken } = require('../services/jwtLogic');
+const { use } = require('./userRoute');
 
 router.post('/signup', async function (req, res, next) {
 	try {
@@ -14,19 +12,19 @@ router.post('/signup', async function (req, res, next) {
 		const user = new db.User({
 			name: req.body.firstName + ' ' + req.body.lastName,
 			email: req.body.email,
-			username: req.body.username,
 			password: hashedPassword,
 		});
-		const savedUser = await user.save();
-		let accessToken = createAccessToken(savedUser);
-		const { password, ...userInfo } = user._doc;
-		return res
-			.cookie('sid', createRefreshToken(user), { httpOnly: true })
-			.status(200)
-			.json({
+		await user.save();
+
+		if (user) {
+			const { password, ...userInfo } = user._doc;
+			const accessToken = createAccessToken(userInfo);
+			console.log(userInfo);
+			res.status(200).json({
 				accessToken,
 				userInfo,
 			});
+		}
 	} catch (err) {
 		if (err.code === 11000) {
 			err.message = 'Sorry, that username or email are already taken';
@@ -49,16 +47,13 @@ router.post('/signin', async (req, res, next) => {
 		);
 
 		if (isMatch) {
-			let accessToken = createAccessToken(user);
-
 			const { password, ...userInfo } = user._doc;
-			return res
-				.cookie('sid', createRefreshToken(user), { httpOnly: true })
-				.status(200)
-				.json({
-					userInfo,
-					accessToken,
-				});
+			let accessToken = createAccessToken(userInfo);
+
+			return res.status(200).json({
+				userInfo,
+				accessToken,
+			});
 		} else {
 			return next({
 				status: 400,

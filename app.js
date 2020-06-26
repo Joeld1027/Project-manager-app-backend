@@ -19,7 +19,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use('/api/auth', authRoutes);
-app.use('/api/users', loginRequired, userRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/tasks', loginRequired, taskRoutes);
 app.use('/api/comments', loginRequired, commetRoutes);
 app.use('/api/projects', projectRoutes);
