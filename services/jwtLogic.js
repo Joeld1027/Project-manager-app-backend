@@ -2,7 +2,7 @@ const { sign } = require('jsonwebtoken');
 
 const createAccessToken = (userInfo) => {
 	return sign(userInfo, process.env.SECRET_KEY, {
-		expiresIn: '15m',
+		expiresIn: '30m',
 	});
 };
 
