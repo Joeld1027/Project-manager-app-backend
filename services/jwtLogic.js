@@ -6,11 +6,4 @@ const createAccessToken = (userInfo) => {
 	});
 };
 
-const createRefreshToken = ({ id, email }) => {
-	return sign({ id, email }, process.env.REFRESH_TOKEN, {
-		expiresIn: '1d',
-	});
-};
-
 module.exports.createAccessToken = createAccessToken;
-module.exports.createRefreshToken = createRefreshToken;
