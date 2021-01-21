@@ -3,7 +3,7 @@ mongoose.set('debug', true);
 mongoose.Promise = Promise;
 
 mongoose.connect(
-	process.env.MONGODB_URI ||
+	'mongodb+srv://Aruki:' + process.env.MONGO_PASSWORD +'@cluster0.qfpuv.mongodb.net/BugTracker?retryWrites=true&w=majority' ||
 		'mongodb://localhost/Project-Manager-App',
 	{
 		keepAlive: true,
