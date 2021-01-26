@@ -34,7 +34,7 @@ var allowCrossDomain = function (req, res, next) {
 	}
 };
 
-app.use(cors(allowCrossDomain));
+app.use(allowCrossDomain);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
