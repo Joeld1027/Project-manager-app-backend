@@ -2,9 +2,10 @@ const mongoose = require('mongoose');
 mongoose.set('debug', true);
 mongoose.Promise = Promise;
 
+// 'mongodb://localhost/Project-Manager-App',
 mongoose.connect(
-	'mongodb+srv://Aruki:' + process.env.MONGO_PASSWORD +'@cluster0.qfpuv.mongodb.net/BugTracker?retryWrites=true&w=majority' ||
-		'mongodb://localhost/Project-Manager-App',
+	'mongodb+srv://Aruki:' + process.env.MONGO_PASSWORD + '@cluster0.qfpuv.mongodb.net/BugTracker?retryWrites=true&w=majority',
+
 	{
 		keepAlive: true,
 		useNewUrlParser: true,
