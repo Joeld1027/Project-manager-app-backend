@@ -7,7 +7,6 @@ const errorHandler = require('./handlers/error');
 const {
 	loginRequired
 } = require('./middleware/auth');
-const cors = require('cors');
 
 // Routes
 const authRoutes = require('./routes/authRoute');
